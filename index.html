@@ -1,0 +1,1317 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finanças @ FEA-USP — Guia Interativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────── */
+:root{
+  --bg:#030C18;
+  --sur:rgba(255,255,255,.042);
+  --sur2:rgba(255,255,255,.072);
+  --bdr:rgba(255,255,255,.09);
+  --G:#00FF94; --G2:rgba(0,255,148,.12); --GB:rgba(0,255,148,.22);
+  --O:#FFB800; --O2:rgba(255,184,0,.12);  --OB:rgba(255,184,0,.22);
+  --B:#38BDF8; --B2:rgba(56,189,248,.12); --BB:rgba(56,189,248,.22);
+  --P:#F472B6; --P2:rgba(244,114,182,.12); --PB:rgba(244,114,182,.22);
+  --R:#FF4444;
+  --tx:rgba(237,244,255,.93);
+  --mu:rgba(237,244,255,.58);
+  --mu2:rgba(237,244,255,.36);
+  --rad:14px; --rad2:20px;
+  --max:1120px;
+  --tick:34px; --hdr:60px;
+  font-size:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Plus Jakarta Sans','Trebuchet MS',sans-serif;
+  color:var(--tx); background:var(--bg);
+  overflow-x:hidden; line-height:1.5;
+}
+/* grid bg */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,255,148,.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,148,.032) 1px, transparent 1px);
+  background-size:44px 44px;
+}
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 900px 600px at 12% -8%, rgba(0,255,148,.065),transparent 60%),
+    radial-gradient(ellipse 700px 500px at 88% 22%, rgba(56,189,248,.05),transparent 55%),
+    radial-gradient(ellipse 800px 600px at 50% 105%, rgba(255,184,0,.045),transparent 60%);
+}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;color:var(--tx)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px;position:relative;z-index:1}
+
+/* ── TICKER ─────────────────────────────────────── */
+.ticker{
+  height:var(--tick); border-bottom:1px solid rgba(0,255,148,.1);
+  background:rgba(0,0,0,.55); backdrop-filter:blur(12px);
+  overflow:hidden; display:flex; align-items:center;
+  position:relative; z-index:60;
+}
+.tick-wrap{display:flex; animation:tickscroll 38s linear infinite; white-space:nowrap}
+.tick-item{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:0 20px; border-right:1px solid rgba(255,255,255,.07);
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+}
+.tick-item .sym{color:var(--mu2)} .tick-item .val{font-weight:700}
+.tick-item .chg.up{color:var(--G)} .tick-item .chg.dn{color:var(--R)}
+@keyframes tickscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── HEADER ─────────────────────────────────────── */
+.topbar{
+  position:sticky; top:0; z-index:50; height:var(--hdr);
+  border-bottom:1px solid var(--bdr);
+  background:rgba(3,12,24,.88); backdrop-filter:blur(18px);
+  display:flex; align-items:center;
+}
+.topbar .inner{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logomark{
+  width:38px;height:38px;border-radius:12px;flex-shrink:0;
+  background:var(--G2); border:1px solid rgba(0,255,148,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--G);
+}
+.brand-t{font-family:'Syne',sans-serif;font-weight:800;font-size:15px}
+.brand-s{font-size:11px;color:var(--mu2);margin-top:2px}
+.hdr-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
+
+/* ── BUTTONS ─────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 13px;border-radius:10px;
+  border:1px solid var(--bdr);background:var(--sur);
+  font-size:12px;font-weight:700;
+  transition:all .12s ease;white-space:nowrap;
+}
+.btn:hover{background:var(--sur2);border-color:rgba(255,255,255,.15)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.35;pointer-events:none}
+.btn.primary{background:var(--G2);border-color:var(--GB);color:var(--G)}
+.btn.primary:hover{background:rgba(0,255,148,.18)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--sur)}
+.btn.sm{padding:6px 10px;font-size:11px}
+.btn.gold{background:var(--O2);border-color:var(--OB);color:var(--O)}
+.btn.blue{background:var(--B2);border-color:var(--BB);color:var(--B)}
+
+/* ── PILLS / TAGS ─────────────────────────────────── */
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 9px;border-radius:999px;
+  border:1px solid var(--bdr);background:var(--sur);
+  font-size:11px;color:var(--mu);font-weight:700;white-space:nowrap;
+}
+.pill.g{border-color:rgba(0,255,148,.25);color:var(--G);background:var(--G2)}
+.pill.o{border-color:rgba(255,184,0,.25);color:var(--O);background:var(--O2)}
+.pill.b{border-color:rgba(56,189,248,.25);color:var(--B);background:var(--B2)}
+.pill.p{border-color:rgba(244,114,182,.25);color:var(--P);background:var(--P2)}
+.tag{
+  display:inline-flex;padding:3px 8px;border-radius:6px;
+  border:1px solid var(--bdr);background:var(--sur);
+  font-size:11px;color:var(--mu2);font-weight:700;
+}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+.layout{display:grid;gap:20px;padding:20px 0 100px}
+@media(min-width:1060px){.layout{grid-template-columns:268px 1fr;align-items:start}}
+.rail{display:none}
+@media(min-width:1060px){
+  .rail{display:block;position:sticky;top:calc(var(--tick) + var(--hdr) + 14px)}
+}
+.rail-card{border:1px solid var(--bdr);background:var(--sur);border-radius:var(--rad2);overflow:hidden}
+.rail-hd{
+  padding:13px 14px 10px;border-bottom:1px solid var(--bdr);
+  font-size:10px;font-weight:700;color:var(--mu2);letter-spacing:.8px;text-transform:uppercase;
+}
+.rail-body{padding:6px}
+.rail-btn{
+  width:100%;text-align:left;display:flex;align-items:center;gap:9px;
+  padding:9px 9px;border-radius:10px;border:1px solid transparent;
+  background:transparent;color:var(--mu);font-size:12px;font-weight:600;
+  transition:all .12s ease;margin-bottom:2px;
+}
+.rail-btn:hover{background:var(--sur2);color:var(--tx)}
+.rail-btn.active{background:var(--G2);border-color:rgba(0,255,148,.25);color:var(--G)}
+.rail-num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  width:20px;height:20px;border-radius:6px;
+  background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;color:var(--mu2);
+}
+.rail-btn.active .rail-num{background:var(--G2);color:var(--G)}
+.rail-txt .t{font-size:12px} .rail-txt .k{font-size:10px;color:var(--mu2);margin-top:1px}
+.rail-btn.active .rail-txt .k{color:rgba(0,255,148,.55)}
+.rail-prog{padding:10px 14px 14px;border-top:1px solid var(--bdr)}
+.rail-prog .lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--mu2);margin-bottom:5px}
+.rail-prog .bar{height:4px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.rail-prog .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--G),var(--B));border-radius:999px;transition:width .35s ease}
+
+/* ── SLIDE ─────────────────────────────────────── */
+.section{min-height:calc(100vh - var(--tick) - var(--hdr) - 40px)}
+.slide{animation:sEnter .38s cubic-bezier(.22,1,.36,1) both}
+.slide.out{animation:sExit .2s ease both}
+@keyframes sEnter{from{opacity:0;transform:translateY(20px) scale(.985);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+@keyframes sExit{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-14px)}}
+.sk{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sk-icon{
+  width:42px;height:42px;border-radius:14px;flex-shrink:0;
+  border:1px solid rgba(0,255,148,.25);background:var(--G2);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.sk-text{font-size:12px;font-weight:700;color:var(--mu)}
+.h1{
+  font-family:'Syne',sans-serif;font-size:38px;font-weight:800;
+  line-height:1.08;letter-spacing:-.4px;margin-bottom:18px;
+}
+@media(max-width:640px){.h1{font-size:28px}}
+.h1 .hl{color:var(--G)}
+
+/* ── CARDS ─────────────────────────────────────── */
+.card{border:1px solid var(--bdr);background:var(--sur);border-radius:var(--rad2);overflow:hidden}
+.card.gg{border-color:rgba(0,255,148,.18);box-shadow:0 0 35px rgba(0,255,148,.055)}
+.card.og{border-color:rgba(255,184,0,.18);box-shadow:0 0 35px rgba(255,184,0,.055)}
+.card.bg{border-color:rgba(56,189,248,.18);box-shadow:0 0 35px rgba(56,189,248,.055)}
+.card-hd{
+  padding:13px 16px 11px;border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.card-hd h3{
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  color:var(--mu);text-transform:uppercase;letter-spacing:.5px;
+}
+.card-body{padding:15px}
+
+/* ── GRID UTILS ─────────────────────────────────── */
+.g2{display:grid;gap:15px}
+@media(min-width:820px){.g2{grid-template-columns:1fr 1fr}}
+.g3{display:grid;gap:15px}
+@media(min-width:820px){.g3{grid-template-columns:2fr 1fr}}
+
+/* ── STAT ─────────────────────────────────────── */
+.stat{padding:14px 15px;border:1px solid var(--bdr);border-radius:var(--rad);background:var(--sur)}
+.stat .lbl{font-size:10px;font-weight:700;color:var(--mu2);text-transform:uppercase;letter-spacing:.5px}
+.stat .val{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;margin-top:5px;line-height:1}
+.stat .sub{font-size:11px;color:var(--mu);margin-top:5px}
+.stat.sg{border-color:rgba(0,255,148,.2)} .stat.sg .val{color:var(--G)}
+.stat.so{border-color:rgba(255,184,0,.2)} .stat.so .val{color:var(--O)}
+.stat.sb{border-color:rgba(56,189,248,.2)} .stat.sb .val{color:var(--B)}
+.stat.sp{border-color:rgba(244,114,182,.2)} .stat.sp .val{color:var(--P)}
+
+/* ── BOX ─────────────────────────────────────── */
+.box{padding:12px 14px;border:1px solid var(--bdr);border-radius:var(--rad);background:rgba(255,255,255,.025)}
+.box h4{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;margin-bottom:5px}
+.box p,.box .mu{color:var(--mu);font-size:12px;line-height:1.55}
+.box.soft{background:rgba(255,255,255,.038)}
+.box.bg{border-color:var(--GB);background:var(--G2)} .box.bg h4{color:var(--G)}
+.box.bo{border-color:var(--OB);background:var(--O2)} .box.bo h4{color:var(--O)}
+.box.bb{border-color:var(--BB);background:var(--B2)} .box.bb h4{color:var(--B)}
+.box.bp{border-color:var(--PB);background:var(--P2)} .box.bp h4{color:var(--P)}
+.ul{list-style:none}
+.ul li{padding:4px 0 4px 16px;position:relative;color:var(--mu);font-size:12px;line-height:1.5}
+.ul li::before{content:'›';position:absolute;left:0;color:var(--G);font-weight:700}
+.ul li strong{color:var(--tx)}
+.ul li+li{border-top:1px solid rgba(255,255,255,.04)}
+.hr{height:1px;background:var(--bdr);border:none;margin:10px 0}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ── AREA ACCORDION ─────────────────────────────── */
+.ac{
+  border:1px solid var(--bdr);border-radius:var(--rad2);
+  background:var(--sur);cursor:pointer;
+  transition:border-color .14s ease,background .14s ease;
+  margin-bottom:9px;
+}
+.ac:hover{background:var(--sur2)}
+.ac.open{border-color:rgba(0,255,148,.28)}
+.ac-hdr{padding:13px 15px;display:flex;align-items:center;gap:11px}
+.ac-icon{
+  width:46px;height:46px;border-radius:13px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  border:1px solid var(--bdr);
+}
+.ac-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800}
+.ac-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.ac-chev{margin-left:auto;color:var(--mu2);font-size:16px;transition:transform .2s ease;line-height:1}
+.ac.open .ac-chev{transform:rotate(180deg);color:var(--G)}
+.ac-body{
+  display:none;padding:0 15px 15px;border-top:1px solid var(--bdr);
+  padding-top:13px;animation:fadeUp .22s ease both;
+}
+.ac.open .ac-body{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ── COMPANY GRID ────────────────────────────────── */
+.co-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.co-card{
+  padding:11px 12px;border:1px solid var(--bdr);border-radius:var(--rad);
+  background:var(--sur);cursor:default;transition:all .13s ease;text-align:center;
+}
+.co-card:hover{border-color:rgba(0,255,148,.2);background:var(--sur2);transform:translateY(-2px)}
+.co-card .co-n{font-weight:700;font-size:12px}
+.co-card .co-t{font-size:10px;color:var(--mu2);margin-top:3px}
+.cf-btns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+.cf-btn{
+  padding:5px 11px;border-radius:8px;border:1px solid var(--bdr);
+  background:var(--sur);color:var(--mu);font-size:11px;font-weight:700;
+  cursor:pointer;transition:all .12s ease;
+}
+.cf-btn:hover{background:var(--sur2);color:var(--tx)}
+.cf-btn.active{background:var(--G2);border-color:var(--GB);color:var(--G)}
+
+/* ── ROADMAP ─────────────────────────────────────── */
+.rm-item{display:flex;gap:14px;padding-bottom:20px;position:relative}
+.rm-item::before{content:'';position:absolute;left:16px;top:35px;bottom:0;width:2px;background:linear-gradient(to bottom,rgba(0,255,148,.3),transparent)}
+.rm-item:last-child::before{display:none}
+.rm-dot{
+  width:34px;height:34px;border-radius:11px;flex-shrink:0;
+  background:var(--G2);border:2px solid rgba(0,255,148,.35);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--G);
+}
+.rm-c .rt{font-family:'Syne',sans-serif;font-weight:800;font-size:14px}
+.rm-c .rp{font-size:10px;color:var(--mu2);margin-bottom:7px}
+
+/* ── SKILL BARS ─────────────────────────────────── */
+.sk-bar{margin-bottom:13px}
+.sk-bar .top{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;font-weight:700}
+.sk-bar .top .pct{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mu2)}
+.sk-bar .trk{height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.sk-bar .fill{height:100%;border-radius:999px;width:0%;transition:width .9s cubic-bezier(.22,1,.36,1)}
+.sk-bar .fill.g{background:linear-gradient(90deg,var(--G),rgba(0,255,148,.45))}
+.sk-bar .fill.o{background:linear-gradient(90deg,var(--O),rgba(255,184,0,.45))}
+.sk-bar .fill.b{background:linear-gradient(90deg,var(--B),rgba(56,189,248,.45))}
+.sk-bar .fill.p{background:linear-gradient(90deg,var(--P),rgba(244,114,182,.45))}
+.sk-bar .note{font-size:10px;color:var(--mu2);margin-top:3px}
+
+/* ── QUIZ ─────────────────────────────────────── */
+.qbox{padding:13px;border:1px solid var(--bdr);border-radius:var(--rad2);background:var(--sur);margin-bottom:11px}
+.qbox .qt{font-weight:700;font-size:13px;margin-bottom:9px}
+.qopt{
+  width:100%;text-align:left;padding:9px 11px;border-radius:9px;
+  border:1px solid var(--bdr);background:rgba(255,255,255,.02);
+  font-size:12px;margin-top:5px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  transition:all .12s ease;
+}
+.qopt:hover{background:var(--sur2);border-color:rgba(255,255,255,.16)}
+.qopt.sel{border-color:rgba(56,189,248,.4);background:var(--B2)}
+.qopt.ok{background:var(--G2);border-color:rgba(0,255,148,.35)}
+.qopt.wrong{background:rgba(255,68,68,.1);border-color:rgba(255,68,68,.35)}
+.qwhy{margin-top:7px;font-size:11px;color:var(--mu);padding:7px 9px;background:rgba(0,0,0,.25);border-radius:8px}
+
+/* ── CHECKLIST ─────────────────────────────────── */
+.chk-item{
+  display:flex;align-items:flex-start;gap:11px;padding:11px 13px;
+  border:1px solid var(--bdr);border-radius:var(--rad);background:var(--sur);
+  margin-bottom:7px;cursor:pointer;transition:all .13s ease;user-select:none;
+}
+.chk-item:hover{background:var(--sur2)}
+.chk-item.done{background:var(--G2);border-color:rgba(0,255,148,.3)}
+.chk-box{
+  width:22px;height:22px;flex-shrink:0;border-radius:7px;
+  border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;
+  font-size:12px;transition:all .13s ease;margin-top:1px;
+}
+.chk-item.done .chk-box{background:var(--G);border-color:var(--G);color:#000}
+.chk-t{font-weight:700;font-size:12px} .chk-s{font-size:11px;color:var(--mu);margin-top:2px}
+.chk-item.done .chk-t{color:var(--G)}
+
+/* ── FOOTER CONTROLS ─────────────────────────────── */
+.fctrl{
+  position:fixed;bottom:0;left:0;right:0;z-index:60;
+  padding:12px 0 14px;
+  background:linear-gradient(to top,rgba(3,12,24,.98) 55%,transparent);
+  pointer-events:none;
+}
+.fctrl .inner{display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:auto}
+.kbdhint{display:none;gap:7px}
+@media(min-width:760px){.kbdhint{display:flex}}
+
+/* ── MODAL ─────────────────────────────────────── */
+.modal{
+  position:fixed;inset:0;z-index:80;display:none;
+  align-items:center;justify-content:center;padding:18px;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(14px);
+}
+.modal.open{display:flex}
+.modal-panel{width:min(720px,100%);border:1px solid rgba(0,255,148,.2);background:#06111E;border-radius:24px;overflow:hidden}
+.mpH{padding:15px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.mpH .t{font-family:'Syne',sans-serif;font-weight:800;font-size:16px}
+.mpH .s{font-size:11px;color:var(--mu2);margin-top:3px}
+.mpB{padding:18px;color:var(--mu);line-height:1.6;max-height:60vh;overflow-y:auto}
+.mpB strong{color:var(--tx)}
+.mpF{padding:11px 18px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end}
+
+/* ── PAGE MODE ─────────────────────────────────── */
+.pg-note{padding:11px 14px;border:1px solid var(--bdr);border-radius:var(--rad);background:var(--sur);font-size:12px;color:var(--mu);margin-bottom:12px}
+
+/* ── ANIMATIONS ─────────────────────────────────── */
+@keyframes cntUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stat{animation:cntUp .4s ease both}
+.stat:nth-child(2){animation-delay:.07s}
+.stat:nth-child(3){animation-delay:.14s}
+.stat:nth-child(4){animation-delay:.21s}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="tick-wrap" id="tickerTrack"></div>
+</div>
+
+<!-- HEADER -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="inner">
+      <div class="brand">
+        <div class="logomark">FIN</div>
+        <div>
+          <div class="brand-t" id="topTitle">Finanças @ FEA-USP</div>
+          <div class="brand-s" id="topSub">Ingressantes · 1 / 9</div>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <button class="btn sm" id="modeBtn">Modo página</button>
+        <button class="btn ghost sm" id="homeBtn">Início</button>
+        <span class="pill" id="kbdP" style="display:none">← → / espaço</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="wrap">
+  <div class="layout">
+    <aside class="rail">
+      <div class="rail-card">
+        <div class="rail-hd">Mapa da apresentação</div>
+        <div class="rail-body" id="rail"></div>
+        <div class="rail-prog">
+          <div class="lbl"><span>Progresso</span><span id="progPct">11%</span></div>
+          <div class="bar"><i id="progBar" style="width:11%"></i></div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="section">
+      <div id="slideHost"></div>
+      <div id="pageHost" style="display:none"></div>
+    </section>
+  </div>
+</main>
+
+<!-- FOOTER CONTROLS -->
+<div class="fctrl" id="fctrl">
+  <div class="wrap">
+    <div class="inner">
+      <button class="btn" id="prevBtn" disabled>← Voltar</button>
+      <div class="kbdhint">
+        <span class="pill">espaço: próximo</span>
+        <span class="pill">← → navegar</span>
+        <span class="pill">M: modo página</span>
+      </div>
+      <button class="btn primary" id="nextBtn">Próximo →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-panel">
+    <div class="mpH">
+      <div>
+        <div class="t" id="mT"></div>
+        <div class="s" id="mD"></div>
+      </div>
+      <button class="btn sm" id="mClose">✕ Fechar</button>
+    </div>
+    <div class="mpB" id="mB"></div>
+    <div class="mpF"><button class="btn primary" id="mOk">Ok</button></div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// DATA
+// =====================================================
+const DATA = {
+  sections:[
+    {id:"welcome",    title:"Boas-vindas",              kicker:"Você entrou no jogo",          emoji:"🚀"},
+    {id:"what",       title:"O que é Finanças",         kicker:"Decisão sob incerteza",        emoji:"🧠"},
+    {id:"where",      title:"Onde Trabalhar",           kicker:"Empresas, cargos e salários",  emoji:"🏦"},
+    {id:"areas",      title:"As 6 Grandes Áreas",       kicker:"Conheça cada uma por dentro",  emoji:"🗺️"},
+    {id:"learn",      title:"O que Precisa Aprender",   kicker:"Roadmap semestre a semestre",  emoji:"📚"},
+    {id:"skills",     title:"Habilidades que Abrem Portas", kicker:"Kit para destravar estágio", emoji:"⚡"},
+    {id:"fea",        title:"Oportunidades na FEA",     kicker:"Construa portfólio agora",     emoji:"🏛️"},
+    {id:"quiz",       title:"Quiz Rápido",              kicker:"5 conceitos essenciais",       emoji:"🎯"},
+    {id:"plan",       title:"Seu Plano de Ação",        kicker:"Começa hoje",                  emoji:"✅"},
+  ],
+  ticker:[
+    {sym:"IBOV",val:"134.218",chg:"+1.2%",up:true},
+    {sym:"SELIC",val:"10,50%",chg:"a.a.",up:true},
+    {sym:"USD/BRL",val:"5,02",chg:"+0,4%",up:false},
+    {sym:"PETR4",val:"R$38,90",chg:"+2,1%",up:true},
+    {sym:"VALE3",val:"R$63,45",chg:"-0,8%",up:false},
+    {sym:"ITUB4",val:"R$29,10",chg:"+0,9%",up:true},
+    {sym:"CDI",val:"10,40%",chg:"a.a.",up:true},
+    {sym:"IPCA",val:"4,83%",chg:"a.a.",up:false},
+    {sym:"OURO",val:"R$14.280",chg:"+0,5%",up:true},
+    {sym:"SP500",val:"5.874",chg:"+0,3%",up:true},
+    {sym:"BTGP3",val:"R$22,40",chg:"+1,5%",up:true},
+    {sym:"XPBR31",val:"R$18,90",chg:"-0,3%",up:false},
+  ],
+  companies:{
+    "Banco de Investimento":["BTG Pactual","Itaú BBA","Bradesco BBI","UBS BB","J.P. Morgan","Goldman Sachs","Citi","Santander CIB","Morgan Stanley","Credit Suisse"],
+    "Asset Management":["XP Asset","BTG Asset","Kinea","Vinci Partners","Verde Asset","SPX Capital","Bahia Asset","Itaú Asset","Bradesco Asset","BB Asset"],
+    "Fintech":["Nubank","Creditas","C6 Bank","Warren","Magnetis","Toro","BTG Mais","Mercado Pago","Inter","PicPay"],
+    "Corporate":["Petrobras","Vale","Ambev","Embraer","Natura","Gerdau","Raízen","Suzano","Localiza","Localfrio"],
+    "Consultoria":["McKinsey","Bain & Co.","BCG","Roland Berger","Kearney","EY-Parthenon","Deloitte","PwC","KPMG","Accenture"],
+    "Órgãos/Research":["Banco Central","CVM","ANBIMA","XP Research","Itaú Macro","Inter Research","FMI","Banco Mundial","B3","BNDES"],
+  },
+  areas:[
+    {
+      id:"ib",title:"Investment Banking",short:"M&A · IPOs · Bonds · Reestruturações",
+      emoji:"🏗️",color:"o",
+      desc:"Estruturação de fusões e aquisições, emissões de ações (IPOs), captações de dívida e reestruturações corporativas. O ritmo é intenso, os projetos são transformadores e a curva de aprendizado é íngreme.",
+      day:"Você acorda às 7h com um information memorandum de 80 páginas para revisar. Das 9h às 22h: modelo DCF, comparáveis, análise de transações precedentes, atualização de deck para o cliente. Às 23h você revisa o pitch uma última vez.",
+      skills:["Excel modelagem avançada","Valuation (DCF + múltiplos)","PowerPoint executivo","Contabilidade profunda","Gestão de prazo brutal","Inglês fluente"],
+      companies:["BTG Pactual","Itaú BBA","Bradesco BBI","UBS BB","J.P. Morgan","Goldman Sachs","Citi","Santander CIB"],
+      s_in:"R$ 4k – 6k/mês",s_an:"R$ 14k – 22k + bônus",
+      entry:"Top GPA + modelo DCF + inglês + casos M&A",
+      cert:["CPA-20","Inglês C1+"],
+      pros:["Aprendizado aceleradíssimo","Projetos de alto impacto","Rede de primeiríssimo nível"],
+      cons:["Horas extremas (80–100h/sem)","Alta pressão constante","Lifestyle muito exigente"],
+    },
+    {
+      id:"am",title:"Asset Management",short:"Fundos · Ações · Crédito · Macro",
+      emoji:"📈",color:"g",
+      desc:"Análise de ativos e gestão de carteiras. Você pesquisa empresas, modela teses, discute macro e toma decisões de compra/venda. Alta autonomia, meritocracia real e ambiente intelectualmente estimulante.",
+      day:"Você chega às 8h, lê o relatório econômico, assiste ao abre de mercado. Das 10h às 17h: análise setorial profunda, reunião com o RI da empresa, atualiza sua tese de valuation. Às 17h você apresenta sua recomendação ao comitê de investimentos.",
+      skills:["Valuation (DCF + suma de partes)","Macro + microeconomia","Modelagem financeira","Python/R para dados","Comunicação de teses"],
+      companies:["XP Asset","BTG Asset","Kinea","Vinci Partners","Verde Asset","SPX Capital","Bahia Asset"],
+      s_in:"R$ 3k – 5k/mês",s_an:"R$ 9k – 20k + perf.",
+      entry:"Análise de empresa + tese escrita + Python é diferencial enorme",
+      cert:["CPA-20","CFA (diferencial muito grande)"],
+      pros:["Alta autonomia intelectual","Meritocracia real","Melhor equilíbrio de vida que IB"],
+      cons:["Vagas muito escassas","P&L diário no pescoço","Alta exigência técnica e intelectual"],
+    },
+    {
+      id:"cf",title:"Corporate Finance",short:"FP&A · Tesouraria · M&A interno · Captações",
+      emoji:"🏢",color:"b",
+      desc:"Finanças dentro de uma empresa real: orçamento, alocação de capital, captações, análise de projetos e M&A interno. Você é o futuro CFO em formação, influenciando decisões estratégicas do negócio.",
+      day:"Você chega às 8h30, abre o dashboard de KPIs, atualiza a previsão de caixa. Reunião com operações às 10h, apresentação para o CFO às 14h, análise de viabilidade de expansão às 16h.",
+      skills:["Planejamento financeiro (FP&A)","Excel + ERP (SAP/Oracle)","KPIs e dashboards","Finanças corporativas","Business partnering"],
+      companies:["Petrobras","Vale","Ambev","Embraer","Natura","Gerdau","Raízen","3G Capital portfolio"],
+      s_in:"R$ 2,5k – 4,5k/mês",s_an:"R$ 7k – 14k/mês",
+      entry:"Contabilidade sólida + Excel + comunicação com executivos",
+      cert:["CPA-10 ou 20","CRC (diferencial)"],
+      pros:["Contexto de negócio real","Melhor equilíbrio vida/trabalho","Influência estratégica ampla"],
+      cons:["Progressão mais lenta","Política corporativa presente","Salário inicial menor"],
+    },
+    {
+      id:"risk",title:"Crédito & Risco",short:"Score · Rating · Stress test · VaR · Basel",
+      emoji:"🛡️",color:"p",
+      desc:"Avaliar e modelar risco de crédito, mercado e operacional. Você quantifica probabilidades de default, faz stress tests regulatórios e define limites de exposição. Rigor técnico e ceticismo são tudo aqui.",
+      day:"Você chega às 8h30, revisa a carteira de crédito, analisa o VaR overnight. Das 10h às 16h: análise de contraparte, reunião com comitê de risco, atualização de modelo de score. Às 16h documenta premissas e metodologia.",
+      skills:["Probabilidade e estatística","Modelos de risco (VaR/CVaR)","SQL + Python","Análise de balanço + covenants","Documentação técnica"],
+      companies:["Itaú","Bradesco","Santander","Nubank","Creditas","S&P","Fitch","Moody's","Banco Central"],
+      s_in:"R$ 3k – 4,5k/mês",s_an:"R$ 8k – 16k/mês",
+      entry:"Estatística + ceticismo rigoroso + SQL/Python",
+      cert:["CPA-20","FRM (top para risco de mercado)"],
+      pros:["Altamente técnico","Demanda crescente (regulação Basel)","Impacto sistêmico real"],
+      cons:["Menos glamour que IB","Burocrático em grandes bancos","Curva de aprendizado muito longa"],
+    },
+    {
+      id:"quant",title:"Quantitative / Dados",short:"Backtests · Modelos · Automação · ML",
+      emoji:"💻",color:"b",
+      desc:"A fronteira entre tecnologia e finanças: backtests de estratégias, modelos preditivos, automação de relatórios e fatores de risco. Demanda crescente e remuneração acima da média do mercado.",
+      day:"Você trabalha em hub de tech ou remoto. Das 9h às 17h: coleta dados via API, treina modelo de previsão, documenta no GitHub, apresenta insights para o time de portfólio no final do dia.",
+      skills:["Python / R avançado","SQL e bancos de dados","Estatística + Machine Learning","Git / reprodutibilidade","Finanças quantitativas"],
+      companies:["Nubank","XP Data","BTG Quant desk","Itaú Data Science","Magnetis","Warren","Fintechs em geral"],
+      s_in:"R$ 4k – 6k/mês",s_an:"R$ 10k – 22k/mês",
+      entry:"GitHub com projetos + Python + estatística + finanças",
+      cert:["CFA (diferencial forte)","Cursos de ML/DS reconhecidos"],
+      pros:["Flexibilidade e remotismo","Remuneração crescente","Portfólio público no GitHub"],
+      cons:["Finanças como segunda língua","Isolamento técnico possível","Exige portfólio técnico forte"],
+    },
+    {
+      id:"macro",title:"Macro & Research",short:"Cenário · Juros · Câmbio · Relatórios",
+      emoji:"🌐",color:"o",
+      desc:"Entender e comunicar o cenário macroeconômico: Selic, câmbio, inflação, política fiscal e impacto nos ativos. Você escreve, argumenta e convence. Alta visibilidade e influência narrativa.",
+      day:"Você chega às 7h30, lê Valor Econômico e Financial Times. Das 9h às 13h: escreve o relatório semanal de cenário, atualiza o modelo macro. À tarde: call com clientes institucionais, apresentação de outlook setorial.",
+      skills:["Macroeconomia avançada","Redação econômica clara","Modelos VAR/DSGE (diferencial)","Leitura de dados IBGE/Bacen","Argumentação estruturada"],
+      companies:["XP Research","BTG Research","Inter Research","Itaú Macro","Bradesco Research","Banco Central","FMI / Banco Mundial"],
+      s_in:"R$ 3k – 4,5k/mês",s_an:"R$ 8k – 16k/mês",
+      entry:"Economia forte + escrita clara + tese macro consistente",
+      cert:["CPA-20","CFA (componente econômico)"],
+      pros:["Alta visibilidade externa","Impacto em narrativa de mercado","Conteúdo rico e diversificado"],
+      cons:["Vagas muito limitadas","Reputação construída devagar","Opinião pública pode pressionar"],
+    },
+  ],
+  roadmap:[
+    {
+      sem:"Sem. 1–2",label:"S1",title:"Fundação",
+      tags:["Matemática financeira","Contabilidade básica","Excel base","Microeconomia"],
+      note:"Foco: entender os tijolos. Não pule a contabilidade — é onde 90% dos alunos erram.",
+      action:"Abrir conta em corretora e comprar R$ 50 em Tesouro Direto para ver o mercado na prática.",
+    },
+    {
+      sem:"Sem. 3–4",label:"S3",title:"Finanças Corporativas & Valuation",
+      tags:["Finanças corporativas","VPL/TIR/Payback","Custo de capital (WACC)","Excel avançado","Leitura DRE/BP/DFC"],
+      note:"Foco: modelos de decisão. Construa 1 modelo DCF do zero — mesmo que imperfeito.",
+      action:"Escolher 1 empresa listada na B3 e montar 1 modelo DCF simples com premissas documentadas.",
+    },
+    {
+      sem:"Sem. 5–6",label:"S5",title:"Mercados, Risco & Dados",
+      tags:["Portfolio theory","Derivativos básicos","Python/R básico","Estatística aplicada","CPA-20"],
+      note:"Foco: ampliar o toolkit. Python para finanças é diferencial crescente em todas as áreas.",
+      action:"Tirar a CPA-20 e completar 1 curso de Python para dados financeiros (Coursera/Udemy).",
+    },
+    {
+      sem:"Sem. 7–8",label:"S7",title:"Especialização & Mercado",
+      tags:["CFA Level 1 (diferencial)","Pesquisa/IC","TCC com dados","Estágio na área-alvo"],
+      note:"Foco: aprofundar e demonstrar. Estágio + projeto de pesquisa = você pronto para o mercado.",
+      action:"Estágio ativo + TCC com metodologia quantitativa + início do CFA se viável.",
+    },
+  ],
+  skillList:[
+    {name:"Contabilidade para decisão",pct:95,c:"g",note:"Sem isso, você não entende o que está avaliando."},
+    {name:"Modelagem financeira (Excel)",pct:90,c:"g",note:"O modelo é a prova de que você pensou."},
+    {name:"Valuation (DCF + múltiplos)",pct:85,c:"o",note:"A língua franca de IB, AM e PE."},
+    {name:"Macro (juros, câmbio, inflação)",pct:80,c:"o",note:"Context matters. Muito."},
+    {name:"Comunicação de teses",pct:88,c:"p",note:"A análise é tão boa quanto você consegue explicar."},
+    {name:"Python/R para dados financeiros",pct:75,c:"b",note:"Diferencial crescente. Automatize o chato."},
+    {name:"SQL + Dados financeiros",pct:65,c:"b",note:"Queried data beats copied data."},
+  ],
+  opps:[
+    {title:"Liga de Mercado Financeiro (LMF FEA)",tag:"Mercado",color:"o",bullets:["Contato direto com profissionais de BTG, XP, Itaú e mais","Grupos de estudo e trilhas internas estruturadas","Eventos, workshops e divulgação de oportunidades"]},
+    {title:"FEA Júnior",tag:"Consultoria real",color:"b",bullets:["Projetos de consultoria para clientes reais","Gestão, produto e finanças aplicadas desde o 1º ano","Portfólio concreto com entrega mensurável"]},
+    {title:"Iniciação Científica (IC)",tag:"Profundidade",color:"g",bullets:["Orientação de professor pesquisador da FEA","Método e rigor estatístico desde o início","Base sólida para pós-graduação e research"]},
+    {title:"Competições de Cases",tag:"Sinal de mercado",color:"p",bullets:["ECOMP, Coppead, BM, Harvard i3 e outros","Raciocínio estruturado sob pressão real","Feedback de profissionais e prêmios em dinheiro"]},
+  ],
+  quiz:[
+    {q:"Quando VPL e TIR entram em conflito, você prioriza…",opts:[{t:"TIR, porque é percentual",ok:false},{t:"VPL, porque mede valor em R$",ok:true},{t:"Payback, porque é simples",ok:false},{t:"O feeling do gestor",ok:false}],why:"VPL mede o valor absoluto criado para uma taxa de desconto definida. TIR ignora escala e pode ser múltipla em projetos não convencionais."},
+    {q:"'Valor' em finanças é melhor definido como…",opts:[{t:"O último preço de mercado",ok:false},{t:"VP dos fluxos de caixa futuros ajustados ao risco",ok:true},{t:"O múltiplo médio do setor",ok:false},{t:"O tamanho do balanço patrimonial",ok:false}],why:"Preço é o que o mercado paga hoje; valor é uma estimativa dos fluxos de caixa futuros descontados pelo risco."},
+    {q:"Diversificação funciona porque…",opts:[{t:"Você tem mais ativos",ok:false},{t:"Ativos com correlação baixa se compensam",ok:true},{t:"Você ganha em qualquer cenário",ok:false},{t:"A TIR média aumenta",ok:false}],why:"Menor correlação entre ativos reduz a volatilidade da carteira para um dado retorno esperado — esse é o benefício matemático."},
+    {q:"Num DCF, o que mais muda o resultado?",opts:[{t:"O número de casas decimais",ok:false},{t:"WACC e taxa de crescimento (g)",ok:true},{t:"A fonte do relatório",ok:false},{t:"O número de abas na planilha",ok:false}],why:"Pequenas mudanças em WACC e na taxa de crescimento na perpetuidade geram variações enormes no valor presente."},
+    {q:"Boa análise financeira começa com…",opts:[{t:"Abrir a planilha e modelar",ok:false},{t:"Pergunta clara + hipótese testável",ok:true},{t:"Puxar o máximo de dados",ok:false},{t:"Achar o modelo mais complexo",ok:false}],why:"Sem pergunta clara, você minera números sem direção. A hipótese guia o que coletar, como modelar e o que reportar."},
+  ],
+  checklist:[
+    {id:"c1",t:"Abrir conta em corretora",s:"XP, Rico, Clear, BTG — gratuito em 10 min"},
+    {id:"c2",t:"Escolher 1 área de foco",s:"IB? Asset? CorpFin? Quant? Escolha e mergulhe"},
+    {id:"c3",t:"Fazer 1 mini-projeto esta semana",s:"1 página: tese de ação, cenário de juros ou mini-DCF"},
+    {id:"c4",t:"Entrar em 1 entidade da FEA",s:"Liga, FEA Jr., IC — o que mais encaixa com seu foco"},
+    {id:"c5",t:"Começar Excel ou Python",s:"1h/dia por 30 dias. YouTube ou Coursera (grátis)"},
+    {id:"c6",t:"Pedir feedback de alguém sênior",s:"Veterano, professor ou profissional — 15 min de papo vale muito"},
+  ],
+};
+
+// =====================================================
+// STATE
+// =====================================================
+const S = {
+  mode:"present", idx:0,
+  openArea:null, coFilter:Object.keys(DATA.companies)[0],
+  qAns:{}, qReveal:false,
+  checks:{},
+};
+
+// =====================================================
+// UTILS
+// =====================================================
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
+function openModal({title,desc,body}){
+  $("#mT").textContent=title||""; $("#mD").textContent=desc||""; $("#mB").innerHTML=body||"";
+  $("#modal").classList.add("open");
+}
+function closeModal(){ $("#modal").classList.remove("open"); }
+
+// =====================================================
+// TICKER
+// =====================================================
+function buildTicker(){
+  const items = [...DATA.ticker,...DATA.ticker];
+  $("#tickerTrack").innerHTML = items.map(t=>`
+    <div class="tick-item">
+      <span class="sym">${t.sym}</span>
+      <span class="val">${t.val}</span>
+      <span class="chg ${t.up?'up':'dn'}">${t.up?'▲':'▼'} ${t.chg}</span>
+    </div>
+  `).join("");
+}
+
+// =====================================================
+// RAIL + TOPBAR
+// =====================================================
+function renderRail(){
+  const r = $("#rail");
+  r.innerHTML = DATA.sections.map((s,i)=>`
+    <button class="rail-btn${i===S.idx?' active':''}" data-i="${i}">
+      <div class="rail-num">${i+1}</div>
+      <div class="rail-txt">
+        <div class="t">${s.emoji} ${s.title}</div>
+        <div class="k">${s.kicker}</div>
+      </div>
+    </button>
+  `).join("");
+  $$(".rail-btn").forEach(b=>{ b.onclick=()=>go(parseInt(b.dataset.i)); });
+  const pct = Math.round(((S.idx+1)/DATA.sections.length)*100);
+  $("#progPct").textContent = pct+"%";
+  $("#progBar").style.width = pct+"%";
+}
+function setTopbar(){
+  const s = DATA.sections[S.idx];
+  $("#topTitle").textContent = `${s.emoji} ${s.title}`;
+  $("#topSub").textContent = `Ingressantes · ${S.idx+1} / ${DATA.sections.length}`;
+  $("#modeBtn").textContent = S.mode==="present"?"Modo página":"Modo apresentação";
+  $("#fctrl").style.display = S.mode==="present"?"block":"none";
+  $("#prevBtn").disabled = S.idx===0;
+  $("#nextBtn").disabled = S.idx===DATA.sections.length-1;
+}
+
+// =====================================================
+// SLIDE SHELL
+// =====================================================
+function shell(kicker,title,hl,body){
+  const s = DATA.sections[S.idx];
+  return `<div class="slide">
+    <div class="sk">
+      <div class="sk-icon">${s.emoji}</div>
+      <span class="sk-text">${kicker}</span>
+      <span class="pill" style="margin-left:auto">← → / espaço</span>
+    </div>
+    <h1 class="h1">${title}${hl?` <span class="hl">${hl}</span>`:''}
+    </h1>
+    ${body}
+  </div>`;
+}
+
+// =====================================================
+// RENDERERS
+// =====================================================
+
+// 0 — WELCOME
+function rWelcome(){
+  return shell("Você entrou no jogo","Bem-vindo(a) ao","mundo de Finanças",`
+    <div class="g2">
+      <div class="card gg">
+        <div class="card-hd"><h3>O que você vai descobrir aqui</h3></div>
+        <div class="card-body">
+          <ul class="ul">
+            <li><strong>Onde trabalhar</strong> — bancos, fintechs, corporates, research e mais</li>
+            <li><strong>As 6 grandes áreas</strong> de Finanças e o que cada uma exige de você</li>
+            <li><strong>Roadmap por semestre</strong> — o que aprender e quando</li>
+            <li><strong>Habilidades que destravam estágio</strong> nos melhores lugares</li>
+            <li><strong>Oportunidades da FEA</strong> para construir portfólio desde já</li>
+          </ul>
+          <div class="box bg" style="margin-top:13px">
+            <h4>🥇 Regra de ouro</h4>
+            <p>Não espere "estar pronto(a)". Aprenda <strong>fazendo</strong>: mini-projetos, feedback, consistência. É assim que o mercado forma analistas.</p>
+          </div>
+          <button class="btn primary" style="margin-top:12px" onclick="go(1)">Começar agora →</button>
+        </div>
+      </div>
+      <div style="display:grid;gap:11px;grid-template-columns:1fr 1fr">
+        <div class="stat sg">
+          <div class="lbl">Áreas para explorar</div>
+          <div class="val cnt" data-to="6">0</div>
+          <div class="sub">IB · AM · CorpFin · Risco · Quant · Macro</div>
+        </div>
+        <div class="stat so">
+          <div class="lbl">Salário analista top</div>
+          <div class="val">R$22k</div>
+          <div class="sub">+ bônus em IB e AM</div>
+        </div>
+        <div class="stat sb">
+          <div class="lbl">Semestres até estágio</div>
+          <div class="val cnt" data-to="4">0</div>
+          <div class="sub">se você começar agora</div>
+        </div>
+        <div class="stat sp">
+          <div class="lbl">Projetos mínimos</div>
+          <div class="val">3</div>
+          <div class="sub">para provar competência</div>
+        </div>
+      </div>
+    </div>
+    <div class="box soft" style="margin-top:13px;display:flex;align-items:center;gap:11px;flex-wrap:wrap">
+      <span style="font-size:22px">💡</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Duração: ~20 minutos</div>
+        <div style="color:var(--mu);font-size:12px">Apresentação interativa · use ← → ou espaço para navegar · M para modo página</div>
+      </div>
+    </div>
+  `);
+}
+
+// 1 — WHAT IS FINANCE
+function rWhat(){
+  return shell("Decisão sob incerteza","Finanças = decidir bem","sob pressão",`
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><h3>O núcleo da disciplina</h3></div>
+        <div class="card-body">
+          <p style="font-size:14px;line-height:1.6;color:var(--mu)">
+            Finanças é a disciplina de <strong style="color:var(--tx)">tomar decisões sobre recursos</strong>
+            quando o futuro é incerto — avaliando <strong style="color:var(--G)">risco, retorno, tempo e informação</strong>.
+          </p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px">
+            <div class="box"><h4>💰 Valor</h4><p>Quanto vale esse ativo ou projeto? DCF, múltiplos e narrativa.</p></div>
+            <div class="box"><h4>⚖️ Risco</h4><p>Volatilidade, drawdown, correlação e cauda de distribuição.</p></div>
+            <div class="box"><h4>⏱️ Tempo</h4><p>R$1 hoje ≠ R$1 amanhã. Taxa de desconto é tudo.</p></div>
+            <div class="box"><h4>📊 Dados</h4><p>Medir, testar, automatizar e reportar com clareza.</p></div>
+          </div>
+          <div class="box bb" style="margin-top:11px">
+            <h4>🎯 A pergunta que vai guiar você</h4>
+            <p>O que eu consigo <strong>mostrar</strong> que sei fazer até o final deste mês?</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3>O que o mercado realmente valoriza</h3></div>
+        <div class="card-body">
+          <div class="box bg"><h4>1. Clareza de raciocínio</h4><p>Recomendação primeiro. Depois o suporte. Sempre.</p></div>
+          <div class="box bo" style="margin-top:9px"><h4>2. Execução consistente</h4><p>Entregar bem toda semana — não só na prova ou deadline final.</p></div>
+          <div class="box bb" style="margin-top:9px"><h4>3. Portfólio de evidências</h4><p>Relatório + modelo + projeto com dados = você no mercado.</p></div>
+          <div class="box" style="margin-top:9px">
+            <h4>🧩 A analogia certa</h4>
+            <p>Finanças não é decorar fórmulas — é como xadrez: você aprende as peças rápido, mas a maestria vem do jogo real.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// 2 — WHERE TO WORK
+function rWhere(){
+  const cos = DATA.companies[S.coFilter] || [];
+  const filterBtns = Object.keys(DATA.companies).map(k=>`
+    <button class="cf-btn${S.coFilter===k?' active':''}" data-cf="${k}">${k}</button>
+  `).join("");
+  const coCards = cos.map(c=>`
+    <div class="co-card"><div class="co-n">${c}</div></div>
+  `).join("");
+  return shell("Empresas, cargos e salários","Onde você pode","trabalhar",`
+    <div class="g3">
+      <div class="card">
+        <div class="card-hd"><h3>Principais empregadores</h3></div>
+        <div class="card-body">
+          <div class="cf-btns" id="cfBtns">${filterBtns}</div>
+          <div class="co-grid" id="coGrid">${coCards}</div>
+          <div class="box soft" style="margin-top:12px">
+            <p>💡 A maioria das grandes firmas abre estágio em <strong>março–abril</strong> e <strong>setembro–outubro</strong>. Fique de olho no LinkedIn e Gupy.</p>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;gap:11px">
+        <div class="card">
+          <div class="card-hd"><h3>Tipos de entrada na FEA</h3></div>
+          <div class="card-body">
+            <ul class="ul">
+              <li><strong>Estágio</strong> — 2º ao 4º ano, 6h/dia, R$3k–6k</li>
+              <li><strong>Analista Júnior</strong> — formado + experiência, R$7k–22k</li>
+              <li><strong>Trainee</strong> — programas anuais de grandes bancos</li>
+              <li><strong>IC remunerada</strong> — bolsa CNPq/FAPESP, flexível</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card og">
+          <div class="card-hd"><h3>💰 Salários estimados (SP)</h3></div>
+          <div class="card-body">
+            <div class="box bo"><h4>IB / Boutiques</h4><p>Estágio: R$4–6k | Analista: R$14–22k + bônus</p></div>
+            <div class="box bg" style="margin-top:8px"><h4>Asset Management</h4><p>Estágio: R$3–5k | Analista: R$9–20k + perf.</p></div>
+            <div class="box bb" style="margin-top:8px"><h4>Fintech / Quant</h4><p>Estágio: R$4–6k | Pleno: R$10–22k</p></div>
+            <div class="box" style="margin-top:8px"><h4>Corp Finance / Risco</h4><p>Estágio: R$2,5–4,5k | Analista: R$7–15k</p></div>
+            <p style="font-size:10px;color:var(--mu2);margin-top:9px">* Estimativas para São Paulo. Variam por firma, momento e performance pessoal.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// 3 — 6 AREAS
+function rAreas(){
+  function acColor(c){
+    const m={g:{bg:"var(--G2)",bdr:"rgba(0,255,148,.25)"},o:{bg:"var(--O2)",bdr:"rgba(255,184,0,.25)"},b:{bg:"var(--B2)",bdr:"rgba(56,189,248,.25)"},p:{bg:"var(--P2)",bdr:"rgba(244,114,182,.25)"}};
+    return m[c]||m.g;
+  }
+  const cards = DATA.areas.map(a=>{
+    const col = acColor(a.color);
+    return `
+    <div class="ac${S.openArea===a.id?' open':''}" data-area="${a.id}">
+      <div class="ac-hdr">
+        <div class="ac-icon" style="background:${col.bg};border-color:${col.bdr}">${a.emoji}</div>
+        <div>
+          <div class="ac-title">${a.title}</div>
+          <div class="ac-sub">${a.short}</div>
+        </div>
+        <div class="ac-chev">▼</div>
+      </div>
+      <div class="ac-body">
+        <p style="color:var(--mu);font-size:12px;line-height:1.55;margin-bottom:11px">${a.desc}</p>
+        <div class="box soft" style="margin-bottom:10px">
+          <h4>☀️ Um dia na vida</h4>
+          <p>${a.day}</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">
+          <div class="box"><h4 style="color:var(--G)" class="mono">${a.s_in}</h4><p>estágio / mês</p></div>
+          <div class="box"><h4 style="color:var(--O)" class="mono">${a.s_an}</h4><p>analista / mês</p></div>
+        </div>
+        <div class="box" style="margin-bottom:9px">
+          <h4>🛠️ Habilidades-chave</h4>
+          <div class="tags" style="margin-top:7px">${a.skills.map(s=>`<span class="tag">${s}</span>`).join("")}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+          <div class="box"><h4>✅ Prós</h4><ul class="ul">${a.pros.map(p=>`<li>${p}</li>`).join("")}</ul></div>
+          <div class="box"><h4>⚠️ Desafios</h4><ul class="ul">${a.cons.map(c=>`<li>${c}</li>`).join("")}</ul></div>
+        </div>
+        <div class="box bg"><h4>🎓 Como entrar</h4><p>${a.entry}</p></div>
+      </div>
+    </div>
+    `;
+  }).join("");
+  return shell("Conheça cada uma por dentro","As 6 Grandes","Áreas de Finanças",`
+    <p style="color:var(--mu);font-size:12px;margin-bottom:14px">Clique em cada área para expandir e ver salários, habilidades e como entrar.</p>
+    <div id="areasHost">${cards}</div>
+  `);
+}
+
+// 4 — ROADMAP
+function rLearn(){
+  const rmHtml = DATA.roadmap.map((r,i)=>`
+    <div class="rm-item">
+      <div class="rm-dot">${r.label}</div>
+      <div class="rm-c" style="flex:1">
+        <div class="rt">${r.title}</div>
+        <div class="rp">${r.sem}</div>
+        <p style="color:var(--mu);font-size:12px;margin-bottom:8px">${r.note}</p>
+        <div class="tags">${r.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+        <div class="box bg" style="margin-top:9px">
+          <h4>🎯 Ação concreta agora</h4>
+          <p>${r.action}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+  return shell("Roadmap semestre a semestre","O que você precisa","aprender",`
+    <div class="g3">
+      <div class="card">
+        <div class="card-hd"><h3>4 anos em 4 fases</h3></div>
+        <div class="card-body">${rmHtml}</div>
+      </div>
+      <div style="display:grid;gap:11px">
+        <div class="card bg">
+          <div class="card-hd"><h3>🏅 Certificações que abrem portas</h3></div>
+          <div class="card-body">
+            <div class="box">
+              <h4>CPA-10 <span class="tag">Básico</span></h4>
+              <p>1–2 semanas de estudo. Obrigatório para operar em bancos. Faça no 1º ano.</p>
+            </div>
+            <div class="box" style="margin-top:8px">
+              <h4>CPA-20 <span class="tag" style="border-color:rgba(0,255,148,.25);color:var(--G)">Recomendado</span></h4>
+              <p>2–4 semanas. Diferencial forte para IB, AM e bancos. Faça no 2º ano.</p>
+            </div>
+            <div class="box" style="margin-top:8px">
+              <h4>CFA L1 <span class="tag" style="border-color:rgba(255,184,0,.25);color:var(--O)">Elite</span></h4>
+              <p>300h+ de estudo. Padrão global. Faça no 3º–4º ano. Vale muito em AM e IB.</p>
+            </div>
+            <div class="box" style="margin-top:8px">
+              <h4>FRM <span class="tag">Especializado</span></h4>
+              <p>Foco em risco. Muito valorizado em Risk, Quant e regulação bancária.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><h3>📚 Recursos gratuitos</h3></div>
+          <div class="card-body">
+            <ul class="ul">
+              <li><strong>Damodaran Online</strong> — valuation com o melhor do mundo</li>
+              <li><strong>Coursera Python for Finance</strong> — bolsa gratuita</li>
+              <li><strong>YouTube: Suno, XP Educação</strong> — mercado BR</li>
+              <li><strong>Valor Econômico</strong> — leia todo dia, é diferencial</li>
+              <li><strong>NAFI (FEA)</strong> — materiais de análise local</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// 5 — SKILLS
+function rSkills(){
+  const skHtml = DATA.skillList.map(sk=>`
+    <div class="sk-bar">
+      <div class="top"><span>${sk.name}</span><span class="pct">${sk.pct}%</span></div>
+      <div class="trk"><div class="fill ${sk.c}" data-pct="${sk.pct}"></div></div>
+      <div class="note">${sk.note}</div>
+    </div>
+  `).join("");
+  return shell("Kit para destravar estágio","Habilidades que","fazem diferença",`
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><h3>Relevância para o mercado</h3></div>
+        <div class="card-body" id="skHost">${skHtml}</div>
+      </div>
+      <div style="display:grid;gap:11px">
+        <div class="card">
+          <div class="card-hd"><h3>📅 Checklist 30 dias</h3></div>
+          <div class="card-body">
+            <div class="box"><h4>Semana 1</h4><p>1 modelo financeiro (DRE, balanço, fluxo de caixa de empresa real).</p></div>
+            <div class="box" style="margin-top:9px"><h4>Semana 2</h4><p>1 empresa analisada: tese, drivers, riscos — em 1 página.</p></div>
+            <div class="box" style="margin-top:9px"><h4>Semana 3</h4><p>Baixar dados da B3 e fazer 1 visualização em Excel ou Python.</p></div>
+            <div class="box" style="margin-top:9px"><h4>Semana 4</h4><p>Apresentar para alguém e pedir feedback. Publicar no portfólio.</p></div>
+          </div>
+        </div>
+        <div class="card og">
+          <div class="card-hd"><h3>📁 Portfólio mínimo viável</h3></div>
+          <div class="card-body">
+            <div class="box bo"><h4>🏗️ Relatório de análise</h4><p>1 empresa, tese, 3 evidências, 2 riscos, valuation simples.</p></div>
+            <div class="box" style="margin-top:9px"><h4>📊 Modelo financeiro</h4><p>DCF ou projeção 3 anos com premissas documentadas.</p></div>
+            <div class="box" style="margin-top:9px"><h4>💻 Projeto com dados</h4><p>Backtest, série histórica ou análise macro — resultado + código.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// 6 — FEA
+function rFea(){
+  const opps = DATA.opps.map(o=>`
+    <div class="box b${o.color}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+        <h4>${o.title}</h4>
+        <span class="pill ${o.color}">${o.tag}</span>
+      </div>
+      <ul class="ul">${o.bullets.map(b=>`<li>${b}</li>`).join("")}</ul>
+    </div>
+  `).join("");
+  return shell("Construa portfólio agora","Oportunidades","na FEA",`
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><h3>Entidades e atividades</h3></div>
+        <div class="card-body" style="display:grid;gap:11px">
+          ${opps}
+          <p style="font-size:10px;color:var(--mu2)">Confirme nomes e atividades no semestre atual — gestões mudam.</p>
+        </div>
+      </div>
+      <div style="display:grid;gap:11px">
+        <div class="card bg">
+          <div class="card-hd"><h3>Como transformar participação em portfólio</h3></div>
+          <div class="card-body">
+            <div class="box"><h4>1. Contexto</h4><p>Qual era o problema ou objetivo?</p></div>
+            <div class="box" style="margin-top:8px"><h4>2. Sua função</h4><p>O que você fez especificamente? Seja concreto.</p></div>
+            <div class="box" style="margin-top:8px"><h4>3. Método</h4><p>Como você decidiu? Qual ferramenta ou análise?</p></div>
+            <div class="box" style="margin-top:8px"><h4>4. Resultado</h4><p>Números, aprendizados e próximos passos.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><h3>💬 Frase de networking que funciona</h3></div>
+          <div class="card-body">
+            <div class="box bg">
+              <p style="color:var(--G);font-size:13px;font-style:italic;line-height:1.6">"Oi! Estou no 1º ano de Adm na FEA, explorando <strong style="color:var(--G)">[IB / Asset / Quant]</strong>. Fiz um mini-projeto sobre <strong style="color:var(--G)">[X]</strong> e queria 15 min de feedback."</p>
+            </div>
+            <div class="box soft" style="margin-top:9px">
+              <h4>Por que funciona</h4>
+              <p>Você mostrou iniciativa, pediu pouco tempo e foi específico(a) — três coisas que profissionais adoram.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// 7 — QUIZ
+function rQuiz(){
+  const answered = Object.keys(S.qAns).length;
+  const total = DATA.quiz.length;
+  const score = DATA.quiz.reduce((acc,qq,i)=>{
+    const a=S.qAns[i]; return acc+(a!==undefined&&qq.opts[a]?.ok?1:0);
+  },0);
+  const qHtml = DATA.quiz.map((qq,i)=>{
+    const chosen = S.qAns[i];
+    const opts = qq.opts.map((o,j)=>{
+      let cls="qopt";
+      if(chosen===j) cls+=" sel";
+      if(S.qReveal){ if(o.ok) cls+=" ok"; else if(chosen===j) cls+=" wrong"; }
+      const badge = S.qReveal&&o.ok?`<span class="pill g">✓</span>`:
+                    S.qReveal&&chosen===j&&!o.ok?`<span class="pill" style="border-color:rgba(255,68,68,.3);color:var(--R)">✗</span>`:``;
+      return `<button class="${cls}" data-q="${i}" data-opt="${j}"><span>${o.t}</span>${badge}</button>
+              ${S.qReveal&&o.ok?`<div class="qwhy">💡 ${qq.why}</div>`:''}`;
+    }).join("");
+    return `<div class="qbox"><div class="qt">${i+1}. ${qq.q}</div>${opts}</div>`;
+  }).join("");
+  const emoji = score>=4?"🏆":score>=2?"📈":"🌱";
+  return shell("5 conceitos essenciais","Quiz de","Finanças",`
+    <div class="g3">
+      <div class="card">
+        <div class="card-hd"><h3>Perguntas</h3><span class="pill">${answered}/${total} respondidas</span></div>
+        <div class="card-body">
+          <div id="quizHost">${qHtml}</div>
+          <div style="display:flex;gap:9px;margin-top:13px;flex-wrap:wrap">
+            <button class="btn primary" id="revBtn">Ver gabarito</button>
+            <button class="btn" id="rstBtn">Resetar</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;gap:11px">
+        <div class="card gg">
+          <div class="card-hd"><h3>Resultado</h3></div>
+          <div class="card-body">
+            <div class="stat sg" style="text-align:center;padding:18px">
+              <div style="font-size:30px;margin-bottom:7px">${emoji}</div>
+              <div class="lbl">Acertos</div>
+              <div class="val">${score}/${total}</div>
+              <div class="sub">${score>=4?"Excelente! Você está no caminho certo.":score>=2?"Bom começo — explore as explicações.":"Continue — cada erro é aprendizado."}</div>
+            </div>
+            <div class="box soft" style="margin-top:11px">
+              <h4>Próximo passo</h4>
+              <p>Transforme 1 resposta em um mini-projeto prático esta semana. Aprendizado vira portfólio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// 8 — PLAN
+function rPlan(){
+  const done = Object.values(S.checks).filter(Boolean).length;
+  const total = DATA.checklist.length;
+  const chkHtml = DATA.checklist.map(c=>`
+    <div class="chk-item${S.checks[c.id]?' done':''}" data-chk="${c.id}">
+      <div class="chk-box">${S.checks[c.id]?'✓':''}</div>
+      <div>
+        <div class="chk-t">${c.t}</div>
+        <div class="chk-s">${c.s}</div>
+      </div>
+    </div>
+  `).join("");
+  return shell("Começa hoje","Seu plano de","ação imediata",`
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd">
+          <h3>Checklist de hoje</h3>
+          <span class="pill${done===total?' g':''}">${done}/${total} feitos</span>
+        </div>
+        <div class="card-body">
+          <div class="box soft" style="margin-bottom:11px">
+            <p>Marque os itens que você vai fazer. Cada ✓ é um passo concreto no mercado financeiro.</p>
+          </div>
+          <div id="chkHost">${chkHtml}</div>
+        </div>
+      </div>
+      <div style="display:grid;gap:11px">
+        <div class="card">
+          <div class="card-hd"><h3>🔄 Filosofia de aprendizado</h3></div>
+          <div class="card-body">
+            <div class="box bg"><h4>Ciclo que funciona</h4><p>Conceito → Exemplo real → Mini-projeto → Feedback → Iteração</p></div>
+            <div class="box" style="margin-top:9px"><h4>📌 Consistência > intensidade</h4><p>1h por dia durante 30 dias &gt; 7h num domingo. O mercado valoriza ritmo.</p></div>
+            <div class="box" style="margin-top:9px"><h4>🤝 Rede desde o dia 1</h4><p>Cada colega de FEA é um futuro colega de mercado ou co-fundador.</p></div>
+          </div>
+        </div>
+        <div class="card og">
+          <div class="card-hd"><h3>Mensagem final</h3></div>
+          <div class="card-body">
+            <div class="box bo">
+              <p style="color:var(--O);font-size:14px;line-height:1.6;font-weight:600">
+                "Finanças é um esporte de <strong>rigor + comunicação</strong>. Seja curioso(a), consistente e generoso(a) com o aprendizado. O resto vem."
+              </p>
+            </div>
+            <div class="box soft" style="margin-top:9px">
+              <h4>Você está no lugar certo</h4>
+              <p>FEA-USP te dá a base mais sólida do Brasil. O que você faz com ela é a história que vai contar na entrevista.</p>
+            </div>
+            <div class="box" style="margin-top:9px">
+              <h4>🚀 Próximas 24 horas</h4>
+              <p>Escolha <strong>1 item</strong> da lista ao lado e execute agora. Apenas 1.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// =====================================================
+// DISPATCH + RENDER
+// =====================================================
+const RENDERERS = {
+  welcome:rWelcome, what:rWhat, where:rWhere,
+  areas:rAreas, learn:rLearn, skills:rSkills,
+  fea:rFea, quiz:rQuiz, plan:rPlan,
+};
+
+function renderSlide(){
+  const s = DATA.sections[S.idx];
+  const fn = RENDERERS[s.id] || rWelcome;
+  const html = fn();
+  const host = $("#slideHost");
+  const old = host.firstElementChild;
+  if(old){
+    old.classList.add("out");
+    setTimeout(()=>{ host.innerHTML=html; wire(); animSkills(); animCounters(); }, 180);
+  } else {
+    host.innerHTML=html; wire(); animSkills(); animCounters();
+  }
+  renderRail(); setTopbar();
+}
+
+// =====================================================
+// WIRE INTERACTIONS
+// =====================================================
+function wire(){
+  // company filter
+  $$("[data-cf]").forEach(b=>{ b.onclick=()=>{ S.coFilter=b.dataset.cf; renderSlide(); }; });
+  // area accordion
+  $$("[data-area]").forEach(el=>{
+    el.onclick=(e)=>{
+      if(e.target.closest("button")&&!e.target.closest(".ac-hdr")) return;
+      S.openArea = S.openArea===el.dataset.area ? null : el.dataset.area;
+      renderSlide();
+    };
+  });
+  // quiz
+  $$(".qopt[data-q]").forEach(b=>{
+    b.onclick=()=>{ S.qAns[parseInt(b.dataset.q)]=parseInt(b.dataset.opt); renderSlide(); };
+  });
+  const rb=$("#revBtn"), rs=$("#rstBtn");
+  if(rb) rb.onclick=()=>{ S.qReveal=true; renderSlide(); };
+  if(rs) rs.onclick=()=>{ S.qAns={}; S.qReveal=false; renderSlide(); };
+  // checklist
+  $$("[data-chk]").forEach(el=>{
+    el.onclick=()=>{ S.checks[el.dataset.chk]=!S.checks[el.dataset.chk]; renderSlide(); };
+  });
+}
+
+function animSkills(){
+  setTimeout(()=>{
+    $$(".sk-bar .fill[data-pct]").forEach(b=>{ b.style.width=b.dataset.pct+"%"; });
+  }, 120);
+}
+
+function animCounters(){
+  $$(".cnt[data-to]").forEach(el=>{
+    const to=parseInt(el.dataset.to);
+    let v=0;
+    const step=()=>{ v++; el.textContent=v; if(v<to) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+
+// =====================================================
+// PAGE MODE
+// =====================================================
+function renderPageMode(){
+  $("#pageHost").innerHTML = `
+    <div class="pg-note">📖 Modo página: role para ver tudo. Clique para abrir uma seção em modo apresentação.</div>
+    <div style="display:grid;gap:11px">
+      ${DATA.sections.map((s,i)=>`
+        <div class="card">
+          <div class="card-hd"><h3>${s.emoji} ${s.title}</h3><span class="pill">${i+1}/${DATA.sections.length}</span></div>
+          <div class="card-body">
+            <p style="color:var(--mu);font-size:12px">${s.kicker}</p>
+            <button class="btn primary" data-open="${i}" style="margin-top:10px">Abrir em modo apresentação</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  $$("[data-open]").forEach(b=>{
+    b.onclick=()=>{ S.mode="present"; go(parseInt(b.dataset.open)); };
+  });
+}
+
+// =====================================================
+// MAIN RENDER
+// =====================================================
+function render(){
+  setTopbar(); renderRail();
+  if(S.mode==="present"){
+    $("#pageHost").style.display="none";
+    $("#slideHost").style.display="block";
+    renderSlide();
+  } else {
+    $("#slideHost").style.display="none";
+    $("#pageHost").style.display="block";
+    renderPageMode();
+  }
+}
+
+// =====================================================
+// NAVIGATION
+// =====================================================
+function go(i){
+  S.idx=clamp(i,0,DATA.sections.length-1);
+  if(S.mode==="present") renderSlide();
+  else { renderRail(); setTopbar(); window.scrollTo({top:0,behavior:"smooth"}); }
+}
+function prev(){ go(S.idx-1); }
+function next(){ go(S.idx+1); }
+
+// =====================================================
+// EVENTS
+// =====================================================
+$("#prevBtn").onclick=prev;
+$("#nextBtn").onclick=next;
+$("#homeBtn").onclick=()=>go(0);
+$("#modeBtn").onclick=()=>{ S.mode=S.mode==="present"?"page":"present"; render(); window.scrollTo({top:0,behavior:"smooth"}); };
+$("#mClose").onclick=closeModal;
+$("#mOk").onclick=closeModal;
+$("#modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeModal(); });
+window.addEventListener("keydown",e=>{
+  if(S.mode!=="present") return;
+  if(e.key==="ArrowLeft") prev();
+  if(e.key==="ArrowRight"||e.key===" "){ e.preventDefault(); next(); }
+  if(e.key.toLowerCase()==="m"){ S.mode="page"; render(); }
+});
+
+// show kbd hint on desktop
+if(window.innerWidth>=800){ $("#kbdP").style.display="inline-flex"; }
+
+// =====================================================
+// INIT
+// =====================================================
+buildTicker();
+render();
+</script>
+
+<footer style="border-top:1px solid var(--bdr);margin-top:30px;position:relative;z-index:1">
+  <div class="wrap" style="padding:16px 0;display:flex;gap:11px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+    <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+      <span class="pill g">✦ HTML único · offline</span>
+      <span style="font-size:11px;color:var(--mu2)">Personalize o bloco <span class="mono" style="color:var(--G)">const DATA</span> no &lt;script&gt;</span>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <span class="tag">FEA-USP</span>
+      <span class="tag">Finanças</span>
+      <span class="tag">Adm</span>
+      <span class="tag">Ingressantes</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
